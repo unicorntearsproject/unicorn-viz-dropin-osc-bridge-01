@@ -13,7 +13,7 @@ def validate_config(config_data: dict[str, Any]) -> list[str]:
     if not isinstance(section, dict):
         return ['[osc] must be a table']
 
-    for key in ('enabled', 'feedback'):
+    for key in ('enabled', 'start_enabled', 'feedback'):
         if key in section and not isinstance(section[key], bool):
             errors.append(f'[osc] {key} must be a boolean')
 

@@ -9,13 +9,14 @@ mirroring the MIDI callback discipline (no GL/app mutation off-thread).
 
 | Key | Action |
 | --- | --- |
-| `Ctrl+Alt+9` | Toggle the OSC bridge on/off |
+| `Ctrl+Shift+Alt+9` | Toggle the OSC bridge on/off |
 
 ## Configuration
 
 ```toml
 [osc]
-enabled = false
+enabled = true         # load the drop-in (default true)
+start_enabled = false  # UDP server unbound until Ctrl+Shift+Alt+9 / set true
 host = "127.0.0.1"     # inbound bind address
 port = 9000            # inbound port
 feedback = false       # publish state out (bpm/beat)

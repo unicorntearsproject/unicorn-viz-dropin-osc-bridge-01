@@ -19,7 +19,7 @@ Ableton, Max).
 
 ## Live operation
 
-- `Ctrl+Alt+9` toggles the bridge at runtime.
+- `Ctrl+Shift+Alt+9` toggles the bridge at runtime.
 - Send OSC to `host:port` (default `127.0.0.1:9000`). See the README for the
   address scheme.
 

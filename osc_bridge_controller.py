@@ -48,7 +48,7 @@ DROPIN_CAPABILITIES = {
 }
 
 HELP_ENTRIES = [
-    ('OSC', 'Ctrl+Alt+9', 'Toggle OSC control bridge on/off'),
+    ('OSC', 'Ctrl+Shift+Alt+9', 'Toggle OSC control bridge on/off'),
 ]
 
 
@@ -83,7 +83,10 @@ class OscBridgeController:
     def __init__(self, app: Any, cfg: dict[str, Any] | None = None) -> None:
         self._app = app
         self._cfg = dict(cfg or {})
-        self.enabled = bool(self._cfg.get('enabled', False))
+        # ``enabled`` gates loading (host); ``start_enabled`` decides whether the
+        # UDP server binds at boot.  Default off so no network port is opened
+        # until the operator opts in (Ctrl+Shift+Alt+9 or start_enabled).
+        self.enabled = bool(self._cfg.get('start_enabled', False))
 
         self._host = str(self._cfg.get('host', '127.0.0.1') or '127.0.0.1')
         self._port = int(self._cfg.get('port', 9000) or 9000)
@@ -288,9 +291,18 @@ class OscBridgeController:
         return self.enabled and self._available
 
     def handle_key(self, sym: int, mod: int) -> 'str | None | bool':
-        """Ctrl+Alt+9 toggles the OSC bridge."""
+        """Ctrl+Shift+Alt+9 toggles the OSC bridge.
+
+        Uses the ``Ctrl+Shift+Alt`` app leader so it no longer collides with the
+        PostFX quick slot on plain ``Ctrl+Alt+9``.
+        """
         import sdl2  # noqa: PLC0415
-        if (mod & sdl2.KMOD_CTRL) and (mod & sdl2.KMOD_ALT) and sym == sdl2.SDLK_9:
+        if (
+            (mod & sdl2.KMOD_CTRL)
+            and (mod & sdl2.KMOD_ALT)
+            and (mod & sdl2.KMOD_SHIFT)
+            and sym == sdl2.SDLK_9
+        ):
             on = self.toggle_enabled()
             return f'OSC bridge {"on" if on else "off"}'
         return False

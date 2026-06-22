@@ -6,7 +6,9 @@ Last updated: 2026-06-21
 
 ## Bridge not receiving messages
 
-- Confirm `[osc] enabled = true` (or press `Ctrl+Alt+9`).
+- Confirm the bridge is switched on: `[osc] start_enabled = true` or press
+  `Ctrl+Shift+Alt+9` (the drop-in loads by default, but the UDP server is not
+  bound until enabled).
 - Confirm the sender targets the right `host:port` (default `127.0.0.1:9000`).
 - If the controller is on another device, bind `host = "0.0.0.0"` (trusted
   networks only — OSC is unauthenticated) and check the firewall.
