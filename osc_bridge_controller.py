@@ -105,6 +105,16 @@ class OscBridgeController:
         if self.enabled:
             self._start()
 
+        try:
+            vj = self._app.vj_api
+            vj.register_midi_actions('OSC Bridge', [
+                ('osc_toggle', 'Toggle OSC bridge'),
+            ])
+            vj.register_midi_action_handler('osc_toggle', self.toggle_enabled)
+        except Exception as exc:
+            import logging  # noqa: PLC0415
+            logging.getLogger(__name__).debug('osc-bridge-01: MIDI registration failed: %s', exc)
+
     # ---------------------------------------------------------------- server
     def _start(self) -> None:
         try:
