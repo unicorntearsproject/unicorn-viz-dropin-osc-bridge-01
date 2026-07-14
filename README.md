@@ -1,5 +1,8 @@
 # osc-bridge-01 — OSC Control Surface (TouchOSC / Ableton / Max)
 
+**Version 0.2.0**
+
+
 Exposes unicorn-viz runtime tweakables over OSC so an external surface can drive
 the show live. An inbound UDP server runs on a daemon thread and **only
 enqueues** actions; they execute on the main render thread once per frame —
@@ -58,3 +61,7 @@ and the new `vj_api.set_effect_parameter()` / `get_effect_parameters()` methods,
 so OSC never touches private app state.
 
 See `docs/` for operations, configuration, integration, and troubleshooting.
+
+## Changelog
+
+- **0.2.0** — initial versioned release.
