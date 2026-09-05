@@ -32,7 +32,7 @@ use, it stays alive disabled and the app is unaffected.
 """
 from __future__ import annotations
 
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 
 import logging
 import threading
@@ -116,6 +116,27 @@ class OscBridgeController:
         except Exception as exc:
             import logging  # noqa: PLC0415
             logging.getLogger(__name__).debug('osc-bridge-01: MIDI registration failed: %s', exc)
+        # Control Room panel (docs/planning/control-room-drop-in-integration-
+        # plan-2026-09-05.md, P1). Not unregistered anywhere: shutdown() here
+        # is the *socket* stop that toggle_enabled() itself calls, not an app
+        # teardown hook, and app.py has no separate teardown call for this
+        # drop-in -- the panel simply reads OFF once the server is down.
+        register = getattr(getattr(self._app, 'vj_api', None), 'register_operator_panel', None)
+        if callable(register):
+            try:
+                from unicornviz.operator_panels import OperatorPanel  # noqa: PLC0415
+                register(OperatorPanel(
+                    name='osc',
+                    title='OSC Bridge',
+                    page='output',
+                    priority=240,
+                    size='small',
+                    content=self._operator_panel_content,
+                    on_action=self._operator_panel_action,
+                    tooltips={'toggle': 'Start / stop the OSC UDP control bridge'},
+                ))
+            except Exception as exc:
+                log.debug('osc-bridge-01: operator panel registration failed: %s', exc)
 
     # ---------------------------------------------------------------- server
     def _start(self) -> None:
@@ -291,6 +312,29 @@ class OscBridgeController:
             'queued': len(self._queue),
             'last_address': self._last_address,
         }
+
+    def _operator_panel_content(self) -> Any:
+        """Control Room panel state -- CR render thread; reads snapshot() only."""
+        from unicornviz.operator_panels import PanelButton, PanelContent, PanelRow  # noqa: PLC0415
+        snap = self.snapshot()
+        on = bool(snap.get('enabled', False))
+        return PanelContent(
+            status='ON' if on else 'OFF',
+            rows=(
+                PanelRow('Listen', f"{snap.get('host', '')}:{snap.get('port', '')}"),
+                PanelRow('Feedback', 'on' if snap.get('feedback') else 'off'),
+                PanelRow('Queued', str(snap.get('queued', 0))),
+                PanelRow('Last', str(snap.get('last_address', '') or '-')),
+            ),
+            buttons=(PanelButton('toggle', 'TOGGLE', active=on),),
+        )
+
+    def _operator_panel_action(self, action: str, _payload: Any) -> str | None:
+        """Control Room button -> the same toggle_enabled() the hotkey uses."""
+        if action == 'toggle':
+            on = self.toggle_enabled()
+            return f'OSC bridge {"on" if on else "off"}'
+        return None
 
     def toggle_enabled(self) -> bool:
         if self.enabled:

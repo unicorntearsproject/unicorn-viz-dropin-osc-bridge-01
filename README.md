@@ -1,6 +1,6 @@
 # osc-bridge-01 — OSC Control Surface (TouchOSC / Ableton / Max)
 
-**Version 0.2.0**
+**Version 0.3.0**
 
 
 Exposes unicorn-viz runtime tweakables over OSC so an external surface can drive
@@ -64,4 +64,5 @@ See `docs/` for operations, configuration, integration, and troubleshooting.
 
 ## Changelog
 
+- **0.3.0** — Control Room panel (P1 of `docs/planning/control-room-drop-in-integration-plan-2026-09-05.md`): registered on the shared **OUTPUT** page — listen host:port, feedback, queue depth, last address, and a TOGGLE calling the same `toggle_enabled()` as `Ctrl+Shift+Alt+9`. Not unregistered anywhere: `shutdown()` here is the socket stop that `toggle_enabled()` itself calls, not an app teardown hook.
 - **0.2.0** — initial versioned release.
